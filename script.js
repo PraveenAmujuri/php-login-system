@@ -79,5 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (error === "failed") {
             errorBox.innerText = "Something went wrong. Try again.";
         }
+        if (error) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     }
 });
