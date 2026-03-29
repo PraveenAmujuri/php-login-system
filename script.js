@@ -1,9 +1,4 @@
 console.log("JS loaded");
-function togglePassword() {
-    const p = document.getElementById("password");
-    if (p) p.type = p.type === "password" ? "text" : "password";
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("form");
     if (!form) return;
