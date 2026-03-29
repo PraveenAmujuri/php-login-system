@@ -1,47 +1,54 @@
+console.log("JS loaded");
 function togglePassword() {
     const p = document.getElementById("password");
-    p.type = p.type === "password" ? "text" : "password";
+    if (p) p.type = p.type === "password" ? "text" : "password";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.querySelector(".login-box");
-    const email = form.querySelector("input[type='email']");
-    const password = document.getElementById("password");
+    const form = document.querySelector("form");
+    if (!form) return;
 
+    const email = form.querySelector("input[type='email']");
+    const password = form.querySelector("input[type='password']");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     function setError(input, message) {
+        if (!input) return;
         input.style.border = "2px solid red";
-        input.nextElementSibling?.remove();
+
+        const oldError = input.parentElement.querySelector("small");
+        if (oldError) oldError.remove();
 
         const err = document.createElement("small");
         err.style.color = "red";
         err.innerText = message;
-
         input.parentElement.appendChild(err);
     }
 
     function clearError(input) {
+        if (!input) return;
         input.style.border = "1px solid #ccc";
+
         const err = input.parentElement.querySelector("small");
         if (err) err.remove();
     }
 
-    email.addEventListener("input", () => clearError(email));
-    password.addEventListener("input", () => clearError(password));
+    if (email) email.addEventListener("input", () => clearError(email));
+    if (password) password.addEventListener("input", () => clearError(password));
 
+    // client-side validation
     form.addEventListener("submit", (e) => {
         let valid = true;
 
         clearError(email);
         clearError(password);
 
-        if (!emailRegex.test(email.value.trim())) {
+        if (email && !emailRegex.test(email.value.trim())) {
             setError(email, "Enter a valid email");
             valid = false;
         }
 
-        if (password.value.length < 8) {
+        if (password && password.value.length < 8) {
             setError(password, "Minimum 8 characters required");
             valid = false;
         }
@@ -49,20 +56,28 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!valid) e.preventDefault();
     });
 
-    // server response handling (FIXED POSITION)
-    const params = new URLSearchParams(window.location.search);
+    // server response handling (login page)
     const errorBox = document.getElementById("server-error");
 
     if (errorBox) {
-        if (params.get("error") === "empty") {
-            errorBox.innerText = "All fields are required";
-        } else if (params.get("error") === "invalid_email") {
-            errorBox.innerText = "Invalid email format";
-        } else if (params.get("error") === "weak_password") {
+        const params = new URLSearchParams(window.location.search);
+        const error = params.get("error");
+
+        if (error === "empty") {
+            errorBox.innerText = "Please fill all fields";
+        } else if (error === "invalid_email") {
+            errorBox.innerText = "Enter a valid email address";
+        } else if (error === "weak_password") {
             errorBox.innerText = "Password must be at least 8 characters";
-        } else if (params.get("success")) {
-            errorBox.style.color = "green";
-            errorBox.innerText = "Validation passed";
+        } else if (error === "user_not_found") {
+            errorBox.innerHTML = `User not found. <a href="signup.html">Create an account</a>`;
+        } else if (error === "wrong_password") {
+            errorBox.innerText = "Incorrect password";
+        }else if (error === "user_exists") {
+            errorBox.innerHTML = `Account already exists. <a href="index.html">Login</a>`;
+        } 
+        else if (error === "failed") {
+            errorBox.innerText = "Something went wrong. Try again.";
         }
     }
 });
