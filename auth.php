@@ -1,4 +1,6 @@
 <?php
+session_start();
+require "config.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: index.html");
@@ -18,10 +20,32 @@ if (!filter_var($userId, FILTER_VALIDATE_EMAIL)) {
     exit();
 }
 
-if (strlen($password) < 8) {
-    header("Location: index.html?error=weak_password");
+$stmt = $conn->prepare("SELECT id, userId, password FROM users WHERE userId = ?");
+if (!$stmt) {
+    http_response_code(500);
+    exit("Query error");
+}
+
+$stmt->bind_param("s", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows !== 1) {
+    header("Location: index.html?error=user_not_found");
     exit();
 }
 
-header("Location: index.html?success=1");
+$user = $result->fetch_assoc();
+
+if (!password_verify($password, $user["password"])) {
+    header("Location: index.html?error=wrong_password");
+    exit();
+}
+
+// secure session
+session_regenerate_id(true);
+$_SESSION["user_id"] = $user["id"];
+$_SESSION["user_email"] = $user["userId"];
+
+header("Location: dashboard.php");
 exit();
