@@ -48,19 +48,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!valid) e.preventDefault();
     });
-});
-const params = new URLSearchParams(window.location.search);
-const errorBox = document.getElementById("server-error");
 
-if (errorBox) {
-    if (params.get("error") === "empty") {
-        errorBox.innerText = "All fields are required";
-    } else if (params.get("error") === "invalid_email") {
-        errorBox.innerText = "Invalid email format";
-    } else if (params.get("error") === "weak_password") {
-        errorBox.innerText = "Password must be at least 8 characters";
-    } else if (params.get("success")) {
-        errorBox.style.color = "green";
-        errorBox.innerText = "Validation passed (DB coming next)";
+    // server response handling (FIXED POSITION)
+    const params = new URLSearchParams(window.location.search);
+    const errorBox = document.getElementById("server-error");
+
+    if (errorBox) {
+        if (params.get("error") === "empty") {
+            errorBox.innerText = "All fields are required";
+        } else if (params.get("error") === "invalid_email") {
+            errorBox.innerText = "Invalid email format";
+        } else if (params.get("error") === "weak_password") {
+            errorBox.innerText = "Password must be at least 8 characters";
+        } else if (params.get("success")) {
+            errorBox.style.color = "green";
+            errorBox.innerText = "Validation passed";
+        }
     }
-}
+});
